@@ -8,13 +8,17 @@ export const useHabilidades = () => {
 
   const fetchHabilidades = async () => {
     try {
+      console.log('Iniciando fetch habilidades...');
       const result = await habilidadService.getMisHabilidades();
+      console.log('Resultado del servicio:', result);
       if (result.ok) {
         setHabilidades(result.habilidades);
       } else {
+        console.error('Error en resultado:', result.mensaje);
         setError(result.mensaje);
       }
     } catch (err) {
+      console.error('Excepción capturada:', err);
       setError('Error al cargar habilidades');
     } finally {
       setLoading(false);
@@ -38,8 +42,14 @@ export const useHabilidades = () => {
   };
 
   const eliminar = async (idHabilidad) => {
+    if (!window.confirm('¿Estás seguro de eliminar esta habilidad?')) return;
     const result = await habilidadService.eliminarHabilidad(idHabilidad);
-    if (result.ok) fetchHabilidades();
+    if (result.ok) {
+      fetchHabilidades();
+      alert('Habilidad eliminada correctamente');
+    } else {
+      alert(result.mensaje || 'Error al eliminar');
+    }
     return result;
   };
 

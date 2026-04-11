@@ -26,13 +26,21 @@ export const useAuth = () => {
   };
 
   const register = async (userData) => {
-    const result = await authService.register(userData);
-    if (result.ok) {
-      localStorage.setItem('token', result.token);
-      setUser(result.user);
-      navigate('/perfil');
+    try {
+      const result = await authService.register(userData);
+      if (result.ok) {
+        localStorage.setItem('token', result.token);
+        setUser(result.user);
+        navigate('/perfil');
+      }
+      return result; // Devuelve el objeto completo (con ok, mensaje, etc.)
+    } catch (error) {
+      // Si es un error de red o del servidor (4xx, 5xx)
+      if (error.response) {
+        return error.response.data;
+      }
+      return { ok: false, mensaje: 'Error de conexión' };
     }
-    return result;
   };
 
   const logout = async () => {

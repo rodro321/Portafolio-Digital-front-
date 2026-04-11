@@ -29,6 +29,7 @@ export const useProfile = () => {
     const result = await profileService.updateProfile(data);
     if (result.ok) {
       setProfile(result.perfil);
+      alert('Cambios guardados correctamente');
     }
     return result;
   };
