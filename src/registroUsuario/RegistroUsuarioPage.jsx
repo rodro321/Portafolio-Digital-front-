@@ -22,8 +22,8 @@ export default function RegistroUsuarioPage({ onNext }) {
         onClick={toggleTheme}
         style={{
           position: "fixed", top: 16, right: 16,
-          background: isDark ? "#1D283A" : "#D9D9D9",
-          border: "none", borderRadius: 8,
+          background: "none",
+          border: "none",
           padding: "10px 12px", cursor: "pointer", fontSize: 18,
         }}
       >

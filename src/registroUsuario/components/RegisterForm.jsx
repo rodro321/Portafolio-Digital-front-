@@ -26,6 +26,7 @@ export default function RegisterForm({ onNext, isDark }) {
   };
 
   return (
+
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {[
         { name: "nombre", placeholder: "Nombre", type: "text" },
