@@ -1,10 +1,10 @@
 import "./index.css";
 import { useTheme } from "../context/ThemeContext";
-import VistaModule from "./modules/VistaModule";
+import ProyectoModule from "./modules/ProyectoModule";
 import iconoSol from "../assets/iconoSol.png";
 import iconoLuna from "../assets/iconoLuna.png";
 
-export default function VistaEdicionPage({ userData, onGoToHabilidad, onGoToProyecto, onBack }) {
+export default function EdicionProyectoPage({ onBack, onSave }) {
   const { isDark, toggleTheme } = useTheme();
   const bg = isDark ? "#020617" : "#D9D9D9";
 
@@ -17,13 +17,7 @@ export default function VistaEdicionPage({ userData, onGoToHabilidad, onGoToProy
         <img src={isDark ? iconoSol : iconoLuna} alt="tema" style={{ width: 28, height: 28 }} />
       </button>
 
-      <VistaModule
-        userData={userData}
-        isDark={isDark}
-        onGoToHabilidad={onGoToHabilidad}
-        onGoToProyecto={onGoToProyecto}
-        onBack={onBack}
-      />
+      <ProyectoModule isDark={isDark} onBack={onBack} onSave={onSave} />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import "./index.css";
 import { useTheme } from "../context/ThemeContext";
 import RegisterModule from "./modules/RegisterModule";
+import iconoSol from "../assets/iconoSol.png";
+import iconoLuna from "../assets/iconoLuna.png";
 
 export default function RegistroUsuarioPage({ onNext }) {
   const { isDark, toggleTheme } = useTheme();
@@ -25,7 +27,11 @@ export default function RegistroUsuarioPage({ onNext }) {
           padding: "10px 12px", cursor: "pointer", fontSize: 18,
         }}
       >
-        {isDark ? "☀️" : "🌙"}
+        <img
+          src={isDark ? iconoSol : iconoLuna}
+          alt="Toggle Theme"
+          style={{ width: 40, height: 40, display: "block" }}
+        />
       </button>
 
       <div className="reg-card" style={{ background: card }}>

@@ -1,6 +1,8 @@
 import "./index.css";
 import { useTheme } from "../context/ThemeContext";
 import ProfileModule from "./modules/ProfileModule";
+import iconoSol from "../assets/iconoSol.png";
+import iconoLuna from "../assets/iconoLuna.png";
 
 export default function EdicionPerfilPage({ userData, onNext }) {
   const { isDark, toggleTheme } = useTheme();
@@ -19,7 +21,7 @@ export default function EdicionPerfilPage({ userData, onNext }) {
         background: isDark ? "#1D283A" : "#D9D9D9",
         border: "none", borderRadius: 8, padding: "10px 12px", cursor: "pointer", fontSize: 18,
       }}>
-        {isDark ? "☀️" : "🌙"}
+        {isDark ? iconoSol : iconoLuna}
       </button>
 
       <div className="edit-card" style={{ background: card }}>
