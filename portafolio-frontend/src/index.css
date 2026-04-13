@@ -109,3 +109,29 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+
+* {
+  box-sizing: border-box;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 600px) {
+  div[style] {
+    padding: 16px !important;
+    margin: 16px auto !important;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  button {
+    width: 100%;
+  }
+}
