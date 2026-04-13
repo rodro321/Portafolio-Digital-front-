@@ -1,9 +1,10 @@
 import { useState, useRef } from "react";
 import { defaultProyecto, TECH_OPTIONS } from "../interfaces/proyecto.interface";
-import { validateProyecto } from "../services/proyecto.service";
+import { validateProyecto, validateImageFile } from "../services/proyecto.service";
+import { motion } from "framer-motion";
 
-export default function ProyectoForm({ isDark, onBack, onSave }) {
-  const [form, setForm]           = useState(defaultProyecto);
+export default function ProyectoForm({ isDark, onBack, onSave, initialData }) {
+  const [form, setForm]           = useState(initialData || defaultProyecto);
   const [errors, setErrors]       = useState({});
   const [showSkills, setShowSkills] = useState(false);
   const [carouselIdx, setCarouselIdx] = useState(0);
@@ -27,6 +28,16 @@ export default function ProyectoForm({ isDark, onBack, onSave }) {
   const handleImage = (idx, e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+  const currentCount = form.imagenes.filter(Boolean).length;
+    if (!form.imagenes[idx] && currentCount >= 6) {
+      alert("Solo se permiten hasta un máximo de 6 imágenes por proyecto");
+      return;
+    }
+
+    const err = validateImageFile(file);
+    if (err) { alert(err); return; }
+
     const url = URL.createObjectURL(file);
     const imgs = [...form.imagenes];
     imgs[idx] = url;
@@ -61,8 +72,8 @@ export default function ProyectoForm({ isDark, onBack, onSave }) {
     <div style={{ maxWidth: 580, margin: "0 auto", padding: "24px 20px 60px", display: "flex", flexDirection: "column", gap: 22 }}>
 
       {/* Título sección */}
-      <h2 style={{ color: "#3B82F6", fontWeight: 800, fontSize: 20, letterSpacing: 1 }}>
-        NUEVO PROYECTO
+      <h2 style={{ color: "#3B82F6", fontWeight: 800, fontSize: 20}}>
+        {initialData ? "EDITAR PROYECTO" : "NUEVO PROYECTO"}
       </h2>
 
       {/* Título */}
@@ -106,7 +117,7 @@ export default function ProyectoForm({ isDark, onBack, onSave }) {
             <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>
               + AÑADIR HABILIDAD
             </span>
-            <span style={{ color: "#fff", fontSize: 16 }}>{showSkills ? "^" : "V"}</span>
+            <span style={{ color: "#fff", fontSize: 16 }}>{showSkills ? "^" : "v"}</span>
           </button>
 
           {/* Grid de opciones */}
@@ -171,7 +182,7 @@ export default function ProyectoForm({ isDark, onBack, onSave }) {
           {/* Slots */}
           <div style={{ display: "flex", gap: 10, flex: 1, justifyContent: "center" }}>
             {visibleSlots.map(idx => (
-              <div
+              <motion.div
                 key={idx}
                 onClick={() => fileRefs[idx].current?.click()}
                 style={{
@@ -185,21 +196,31 @@ export default function ProyectoForm({ isDark, onBack, onSave }) {
                 }}
               >
                 {form.imagenes[idx] ? (
-                  <img src={form.imagenes[idx]} alt=""
+                  <img src={form.imagenes[idx]} 
+                    alt={`evidencia ${idx + 1}`}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 ) : (
-                  <>
-                    <span style={{ color: sub, fontSize: 28 }}>↑</span>
+                  <div style={{
+                    display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center", gap: 6,
+                  }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24"
+                      fill="none" stroke={sub} strokeWidth="1.5">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
                     <span style={{ color: sub, fontSize: 11 }}>Subir Foto</span>
-                  </>
+                  </div>
                 )}
                 <input
                   ref={fileRefs[idx]}
                   type="file" accept="image/*" hidden
                   onChange={(e) => handleImage(idx, e)}
                 />
-              </div>
+              </motion.div>
             ))}
+
           </div>
 
           {/* Flecha der */}
@@ -223,7 +244,7 @@ export default function ProyectoForm({ isDark, onBack, onSave }) {
           fontWeight: 700, fontSize: 15, cursor: "pointer",
           letterSpacing: 1,
         }}>
-          AGREGAR PROYECTO
+          {initialData ? "GUARDAR CAMBIOS" : "AGREGAR PROYECTO"}
         </button>
       </div>
 

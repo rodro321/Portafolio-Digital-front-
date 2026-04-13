@@ -1,6 +1,7 @@
 import { getHeroText } from "../services/home.service";
 import iconoSol from "../../assets/iconoSol.png";
 import iconoLuna from "../../assets/iconoLuna.png";
+import { motion } from "framer-motion";
 
 export default function HeroSection({ isDark, toggleTheme, onRegister, onLogin }) {
   const hero = getHeroText();
@@ -62,7 +63,11 @@ export default function HeroSection({ isDark, toggleTheme, onRegister, onLogin }
       }}>
         {/* Texto izquierda */}
         <div style={{ flex: "1 1 420px" }}>
-          <h1 style={{
+          <motion.h1
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}          
+            style={{
             color: text, fontWeight: 900,
             fontSize: "clamp(36px, 6vw, 64px)",
             lineHeight: 1.05, marginBottom: 8,
@@ -71,16 +76,26 @@ export default function HeroSection({ isDark, toggleTheme, onRegister, onLogin }
             {hero.title1}<br />
             {hero.title2}<br />
             <span style={{ color: "#3B82F6" }}>{hero.highlight}<br />{hero.title3}</span>
-          </h1>
+          </motion.h1>
 
-          <p style={{
+        
+          <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}                  
+          style={{
             color: sub, fontSize: 15, lineHeight: 1.7,
             maxWidth: 440, margin: "20px 0 36px",
           }}>
             {hero.description}
-          </p>
-
-          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+          </motion.p>
+        
+         
+          <motion.div 
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.4 }}
+          style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
             <button onClick={onRegister} style={{
               background: "#3B82F6", color: "#fff",
               border: "none", borderRadius: 8,
@@ -100,7 +115,7 @@ export default function HeroSection({ isDark, toggleTheme, onRegister, onLogin }
             }}>
               → Iniciar Sesión
             </button>
-          </div>
+          </motion.div>
         </div>
 
         {/* Imagen derecha */}
@@ -117,7 +132,11 @@ export default function HeroSection({ isDark, toggleTheme, onRegister, onLogin }
           </div>
 
           {/* Badge */}
-          <div style={{
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.4 }}      
+            style={{
             position: "absolute", bottom: -16, right: 16,
             background: isDark ? "#0F172A" : "#fff",
             border: `1px solid ${border}`,
@@ -135,7 +154,7 @@ export default function HeroSection({ isDark, toggleTheme, onRegister, onLogin }
               <div style={{ color: text, fontWeight: 700, fontSize: 14 }}>Portafolio Compilado</div>
               <div style={{ color: sub, fontSize: 12 }}>Listo para compartir con reclutadores</div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

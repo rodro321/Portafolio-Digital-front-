@@ -1,11 +1,15 @@
+
+
 import "./index.css";
 import { useTheme } from "../context/ThemeContext";
-import ProyectoModule from "./modules/ProyectoModule";
-import iconoSol from "../assets/iconoSol.png";
+import { useApp } from "../context/AppContext";
+import VistaProyectoModule from "./modules/VistaProyectoModule";
+import iconoSol  from "../assets/iconoSol.png";
 import iconoLuna from "../assets/iconoLuna.png";
 
-export default function EdicionProyectoPage({ onBack, onSave, initialData }) {
+export default function VistaProyectoPage() {
   const { isDark, toggleTheme } = useTheme();
+  const { userData } = useApp();
 
   return (
     <div style={{ minHeight: "100vh", background: isDark ? "#020617" : "#D9D9D9" }}>
@@ -15,12 +19,7 @@ export default function EdicionProyectoPage({ onBack, onSave, initialData }) {
       }}>
         <img src={isDark ? iconoSol : iconoLuna} alt="tema" style={{ width: 28, height: 28 }} />
       </button>
-      <ProyectoModule
-        isDark={isDark}
-        onBack={onBack}
-        onSave={onSave}
-        initialData={initialData}  
-      />
+      <VistaProyectoModule userData={userData} isDark={isDark} />
     </div>
   );
 }

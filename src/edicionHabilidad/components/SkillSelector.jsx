@@ -1,33 +1,64 @@
+
+
 import { useState } from "react";
 import { TECH_SUGGESTIONS, SOFT_SUGGESTIONS } from "../interfaces/habilidad.interface";
 import { buildTechSkill, buildSoftSkill, isCustom } from "../services/habilidad.service";
 
-export default function SkillSelector({ isDark, onBack, onSave }) {
-  const [selectedTech, setSelectedTech]   = useState(null);
-  const [techLevel, setTechLevel]         = useState(50);
-  const [customTech, setCustomTech]       = useState("");
-  const [selectedSoft, setSelectedSoft]   = useState(null);
-  const [customSoft, setCustomSoft]       = useState("");
+export default function SkillSelector({ isDark, onBack, onSave, userData }) {
+  const [selectedTech, setSelectedTech] = useState(null);
+  const [techLevel, setTechLevel]       = useState(50);
+  const [customTech, setCustomTech]     = useState("");
+  const [selectedSoft, setSelectedSoft] = useState(null);
+  const [customSoft, setCustomSoft]     = useState("");
 
-  const text   = isDark ? "#fff" : "#111";
+  // Habilidades que el usuario YA tiene
+  const existingTech = (userData?.techSkills || []).map(s => s.nombre.toLowerCase());
+  const existingSoft = (userData?.softSkills || []).map(s => s.toLowerCase());
+
+  const text   = isDark ? "#fff"    : "#111";
   const sub    = isDark ? "#94a3b8" : "#807F81";
   const border = isDark ? "#1D283A" : "#E2E8F0";
   const bg     = isDark ? "#0F172A" : "#F8FAFC";
   const chip   = isDark ? "#1D283A" : "#fff";
 
-  const chipStyle = (active) => ({
+  // Estilo del chip según estado
+  const chipStyle = (active, alreadyHas) => ({
     padding: "7px 16px",
-    border: `1px solid ${active ? "#3B82F6" : border}`,
+    border: `1px solid ${alreadyHas ? "#1d4ed8" : active ? "#3B82F6" : border}`,
     borderRadius: 6,
-    background: active ? "#3B82F6" : chip,
-    color: active ? "#fff" : text,
-    cursor: "pointer", fontSize: 13, fontWeight: active ? 700 : 400,
+    background: alreadyHas ? "#1e3a5f" : active ? "#3B82F6" : chip,
+    color: alreadyHas ? "#60a5fa" : active ? "#fff" : text,
+    cursor: alreadyHas ? "not-allowed" : "pointer",
+    fontSize: 13,
+    fontWeight: active || alreadyHas ? 700 : 400,
     transition: "all 0.15s",
+    opacity: alreadyHas ? 0.7 : 1,
   });
 
+  // Selección bloqueada si ya existe
+  const handleSelectTech = (s) => {
+    if (existingTech.includes(s.toLowerCase())) return;
+    setSelectedTech(s);
+  };
+
+  const handleSelectSoft = (s) => {
+    if (existingSoft.includes(s.toLowerCase())) return;
+    setSelectedSoft(s);
+  };
+
   const handleSave = () => {
+    if (!selectedTech && !selectedSoft) {
+      alert("Debe seleccionar al menos una tecnología o habilidad blanda");
+      return;
+    }
     const techName = isCustom(selectedTech) ? customTech : selectedTech;
     const softName = isCustom(selectedSoft) ? customSoft : selectedSoft;
+
+    if (selectedTech && !techName?.trim()) {
+      alert("Debe escribir el nombre de la habilidad técnica");
+      return;
+    }
+
     onSave({
       tech: techName ? buildTechSkill(techName, techLevel) : null,
       soft: softName ? buildSoftSkill(softName) : null,
@@ -43,25 +74,29 @@ export default function SkillSelector({ isDark, onBack, onSave }) {
 
       {/* TÉCNICAS */}
       <div>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 8,
-          marginBottom: 14,
-        }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
           <span style={{ color: "#3B82F6", fontSize: 22, fontWeight: 700 }}>+</span>
-          <span style={{ color: text, fontWeight: 700, fontSize: 18 }}>Añadir Habilidad Tecnica</span>
+          <span style={{ color: text, fontWeight: 700, fontSize: 18 }}>
+            Añadir Habilidad Tecnica
+          </span>
         </div>
 
-        <div style={{
-          border: `1px solid ${border}`, borderRadius: 10,
-          padding: "16px", background: bg,
-        }}>
+        <div style={{ border: `1px solid ${border}`, borderRadius: 10, padding: 16, background: bg }}>
+          {/* Chips */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-            {TECH_SUGGESTIONS.map((s) => (
-              <button key={s} style={chipStyle(selectedTech === s)}
-                onClick={() => setSelectedTech(s)}>
-                {s}
-              </button>
-            ))}
+            {TECH_SUGGESTIONS.map((s) => {
+              const alreadyHas = existingTech.includes(s.toLowerCase());
+              return (
+                <button
+                  key={s}
+                  style={chipStyle(selectedTech === s, alreadyHas)}
+                  onClick={() => handleSelectTech(s)}
+                  title={alreadyHas ? "Ya tienes esta habilidad" : ""}
+                >
+                  {s}{alreadyHas && " ✓"}
+                </button>
+              );
+            })}
           </div>
 
           {/* Slider si hay selección */}
@@ -80,7 +115,9 @@ export default function SkillSelector({ isDark, onBack, onSave }) {
                 onChange={(e) => setTechLevel(Number(e.target.value))}
                 style={{ width: "100%", accentColor: "#3B82F6" }}
               />
-              <span style={{ color: text, fontWeight: 700, fontSize: 15 }}>{techLevel}%</span>
+              <span style={{ color: text, fontWeight: 700, fontSize: 15 }}>
+                {techLevel}%
+              </span>
 
               {isCustom(selectedTech) && (
                 <input
@@ -93,6 +130,7 @@ export default function SkillSelector({ isDark, onBack, onSave }) {
                     border: `1px solid ${border}`,
                     borderRadius: 6, padding: "8px 12px",
                     color: text, fontSize: 14, outline: "none",
+                    boxSizing: "border-box",
                   }}
                 />
               )}
@@ -105,20 +143,26 @@ export default function SkillSelector({ isDark, onBack, onSave }) {
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
           <span style={{ color: "#3B82F6", fontSize: 22, fontWeight: 700 }}>+</span>
-          <span style={{ color: text, fontWeight: 700, fontSize: 18 }}>Añadir Habilidad Blanda</span>
+          <span style={{ color: text, fontWeight: 700, fontSize: 18 }}>
+            Añadir Habilidad Blanda
+          </span>
         </div>
 
-        <div style={{
-          border: `1px solid ${border}`, borderRadius: 10,
-          padding: "16px", background: bg,
-        }}>
+        <div style={{ border: `1px solid ${border}`, borderRadius: 10, padding: 16, background: bg }}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {SOFT_SUGGESTIONS.map((s) => (
-              <button key={s} style={chipStyle(selectedSoft === s)}
-                onClick={() => setSelectedSoft(s)}>
-                {s}
-              </button>
-            ))}
+            {SOFT_SUGGESTIONS.map((s) => {
+              const alreadyHas = existingSoft.includes(s.toLowerCase());
+              return (
+                <button
+                  key={s}
+                  style={chipStyle(selectedSoft === s, alreadyHas)}
+                  onClick={() => handleSelectSoft(s)}
+                  title={alreadyHas ? "Ya tienes esta habilidad" : ""}
+                >
+                  {s}{alreadyHas && " ✓"}
+                </button>
+              );
+            })}
           </div>
 
           {isCustom(selectedSoft) && (
@@ -132,28 +176,34 @@ export default function SkillSelector({ isDark, onBack, onSave }) {
                 border: `1px solid ${border}`,
                 borderRadius: 6, padding: "8px 12px",
                 color: text, fontSize: 14, outline: "none",
+                boxSizing: "border-box",
               }}
             />
           )}
         </div>
       </div>
 
-      {/* ACCIONES */}
+      {/* BOTONES */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <button onClick={onBack} style={{
           background: "#3B82F6", color: "#fff", border: "none",
           borderRadius: 8, padding: "10px 28px",
           cursor: "pointer", fontWeight: 700, fontSize: 15,
-        }}>Atras</button>
+        }}>
+          Atras
+        </button>
 
         {(selectedTech || selectedSoft) && (
           <button onClick={handleSave} style={{
             background: "#16a34a", color: "#fff", border: "none",
             borderRadius: 8, padding: "10px 28px",
             cursor: "pointer", fontWeight: 700, fontSize: 15,
-          }}>Guardar</button>
+          }}>
+            Guardar
+          </button>
         )}
       </div>
+
     </div>
   );
 }

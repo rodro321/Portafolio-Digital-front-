@@ -1,7 +1,7 @@
 
 import SkillsEditor from "../components/SkillsEditor";
 
-export default function VistaModule({ userData, isDark, onGoToHabilidad, onGoToProyecto, onBack }) {
+export default function VistaModule({ userData, isDark, onGoToHabilidad, onGoToProyecto, onBack, onEditDatos, onEditProyecto, onVerProyecto }) {
   return (
     <SkillsEditor
       userData={userData}
@@ -9,6 +9,9 @@ export default function VistaModule({ userData, isDark, onGoToHabilidad, onGoToP
       onGoToHabilidad={onGoToHabilidad}
       onGoToProyecto={onGoToProyecto}
       onBack={onBack}
+      onEditDatos={onEditDatos}
+      onEditProyecto={onEditProyecto}
+      onVerProyecto={onVerProyecto}
     />
   );
 }
