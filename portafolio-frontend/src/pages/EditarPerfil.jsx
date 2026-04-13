@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const USUARIO_ID = 1; // Hardcodeado hasta que HU-01 esté lista
+const API = "http://127.0.0.1:8000/api";
 
-export default function EditarPerfil() {
+export default function EditarPerfil({ token }) {
   const [perfil, setPerfil] = useState({
     nombre: "", apellido: "", profesion: "",
     biografia: "", telefono: "", ciudad: "", pais: ""
@@ -13,11 +13,20 @@ export default function EditarPerfil() {
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
 
+  const headers = { Authorization: `Bearer ${token}` };
+
   useEffect(() => {
-    axios.get(`http://127.0.0.1:8000/api/perfil/${USUARIO_ID}`)
-      .then(res => setPerfil(res.data))
-      .catch(() => setError("Error al cargar el perfil"));
-  }, []);
+  axios.get(`${API}/perfil`, { headers })
+    .then(res => {
+      const data = res.data;
+      if (data.ok && data.perfil) {
+        setPerfil(data.perfil);
+      } else {
+        setPerfil(data);
+      }
+    })
+    .catch(() => setError("Error al cargar el perfil"));
+}, []);
 
   const handleChange = (e) => {
     setPerfil({ ...perfil, [e.target.name]: e.target.value });
@@ -46,11 +55,11 @@ export default function EditarPerfil() {
       return;
     }
     try {
-      await axios.put(`http://127.0.0.1:8000/api/perfil/${USUARIO_ID}`, perfil);
+      await axios.put(`${API}/perfil`, perfil, { headers });
       if (foto) {
         const formData = new FormData();
-        formData.append("foto", foto);
-        await axios.post(`http://127.0.0.1:8000/api/perfil/${USUARIO_ID}/foto`, formData);
+        formData.append("avatar", foto);
+        await axios.post(`${API}/perfil/avatar`, formData, { headers });
       }
       setMensaje("Perfil actualizado correctamente");
       setError("");
@@ -62,10 +71,8 @@ export default function EditarPerfil() {
   return (
     <div style={{ maxWidth: 600, margin: "40px auto", padding: 24 }}>
       <h2>Editar Perfil</h2>
-
       {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
-
       <form onSubmit={handleSubmit}>
         <div>
           <label>Nombre completo *</label>
