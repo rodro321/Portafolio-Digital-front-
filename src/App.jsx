@@ -1,30 +1,81 @@
 import { useState } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AppProvider, useApp } from "./context/AppContext";
 import Navbar from "./components/Navbar";
 
-import HomePage            from "./homePage/HomePage";
+import HomePage from "./homePage/HomePage";
+import LoginPage from "./loginUsuario/LoginPage";
+import AuthCallbackPage from "./authCallback/AuthCallbackPage";
 import RegistroUsuarioPage from "./registroUsuario/RegistroUsuarioPage";
-import EdicionPerfilPage   from "./edicionPerfil/EdicionPerfilPage";
-import VistaEdicionPage    from "./vistaEdicion/VistaEdicionPage";
+import EdicionPerfilPage from "./edicionPerfil/EdicionPerfilPage";
+import VistaEdicionPage from "./vistaEdicion/VistaEdicionPage";
 import EdicionHabilidadPage from "./edicionHabilidad/EdicionHabilidadPage";
 import EdicionProyectoPage from "./edicionProyecto/EdicionProyectoPage";
-import VistaProyectoPage   from "./vistaProyecto/VistaProyectoPage";
+import VistaProyectoPage from "./vistaProyecto/VistaProyectoPage";
 
 const pageVariants = {
   initial: { opacity: 0, backgroundColor: "#000" },
-  animate: { opacity: 1, backgroundColor: "transparent",
-    transition: { duration: 0.35, ease: "easeOut" } },
-  exit:    { opacity: 0, backgroundColor: "#000",
-    transition: { duration: 0.2, ease: "easeIn" } },
+  animate: {
+    opacity: 1,
+    backgroundColor: "transparent",
+    transition: { duration: 0.35, ease: "easeOut" },
+  },
+  exit: {
+    opacity: 0,
+    backgroundColor: "#000",
+    transition: { duration: 0.2, ease: "easeIn" },
+  },
 };
+
+// Protected route wrapper
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useApp();
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#020617",
+        }}
+      >
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          style={{
+            width: 48,
+            height: 48,
+            border: "4px solid",
+            borderColor: "#3B82F6 transparent #3B82F6 transparent",
+            borderRadius: "50%",
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
 
 function AnimatedRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userData, setUserData } = useApp();
+  const { userData, refreshUserData } = useApp();
   const [editProyectoIdx, setEditProyectoIdx] = useState(null);
 
   return (
@@ -38,90 +89,111 @@ function AnimatedRoutes() {
         style={{ minHeight: "100vh" }}
       >
         <Routes location={location}>
-          <Route path="/" element={
-            <HomePage
-              onRegister={() => navigate("/registro")}
-              onLogin={() => navigate("/registro")}
-            />
-          }/>
-          <Route path="/registro" element={
-            <RegistroUsuarioPage
-              onNext={(data) => {
-                setUserData(d => ({ ...d, ...data }));
-                navigate("/edicion");
-              }}
-            />
-          }/>
-          <Route path="/edicion" element={
-            <EdicionPerfilPage
-              userData={userData}
-              onNext={(data) => {
-                setUserData(d => ({ ...d, ...data }));
-                navigate("/vista");
-              }}
-            />
-          }/>
-          <Route path="/vista" element={
-            <VistaEdicionPage
-              userData={userData}
-              onGoToHabilidad={() => navigate("/habilidad")}
-              onGoToProyecto={() => { setEditProyectoIdx(null); navigate("/proyecto"); }}
-              onEditProyecto={(idx) => { setEditProyectoIdx(idx); navigate("/proyecto"); }}
-              onVerProyecto={(idx) => navigate(`/proyecto/${idx}`)}
-              onBack={() => navigate("/edicion")}
-            />
-          }/>
-          <Route path="/habilidad" element={
-            <EdicionHabilidadPage
-              userData={userData}
-              onBack={() => navigate("/vista")}
-              onSave={(skills) => {
-                setUserData(d => ({
-                  ...d,
-                  techSkills: skills.tech
-                    ? [...(d.techSkills || []), skills.tech]
-                    : (d.techSkills || []),
-                  softSkills: skills.soft
-                    ? [...(d.softSkills || []), skills.soft]
-                    : (d.softSkills || []),
-                }));
-                navigate("/vista");
-              }}
-            />
-          }/>
-          <Route path="/proyecto" element={
-            <EdicionProyectoPage
-              initialData={editProyectoIdx !== null
-                ? userData.proyectos?.[editProyectoIdx]
-                : null}
-              onBack={() => navigate("/vista")}
-              onSave={(proyecto) => {
-                setUserData(d => {
-                  const proyectos = [...(d.proyectos || [])];
-                  if (editProyectoIdx !== null) {
-                    proyectos[editProyectoIdx] = {
-                      ...proyecto,
-                      fecha: proyectos[editProyectoIdx]?.fecha,
-                    };
-                  } else {
-                    proyectos.push({
-                      ...proyecto,
-                      fecha: new Date().toLocaleDateString("es-BO"),
-                    });
+          {/* Public routes */}
+          <Route
+            path="/"
+            element={
+              <HomePage
+                onRegister={() => navigate("/registro")}
+                onLogin={() => navigate("/login")}
+              />
+            }
+          />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          <Route
+            path="/registro"
+            element={
+              <RegistroUsuarioPage
+                onNext={() => {
+                  navigate("/edicion");
+                }}
+              />
+            }
+          />
+
+          {/* Protected routes */}
+          <Route
+            path="/edicion"
+            element={
+              <ProtectedRoute>
+                <EdicionPerfilPage
+                  userData={userData}
+                  onNext={() => {
+                    refreshUserData();
+                    navigate("/vista");
+                  }}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vista"
+            element={
+              <ProtectedRoute>
+                <VistaEdicionPage
+                  userData={userData}
+                  onGoToHabilidad={() => navigate("/habilidad")}
+                  onGoToProyecto={() => {
+                    setEditProyectoIdx(null);
+                    navigate("/proyecto");
+                  }}
+                  onEditProyecto={(idx) => {
+                    setEditProyectoIdx(idx);
+                    navigate("/proyecto");
+                  }}
+                  onVerProyecto={(idx) =>
+                    navigate(`/proyecto/${idx}`)
                   }
-                  return { ...d, proyectos };
-                });
-                setEditProyectoIdx(null);
-                navigate("/vista");
-              }}
-            />
-          }/>
-          <Route path="/proyecto/:idx" element={
-            <VistaProyectoPage
-              userData={userData}
-              onBack={() => navigate("/vista")}
-            />
-          }/>
+                  onBack={() => navigate("/edicion")}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/habilidad"
+            element={
+              <ProtectedRoute>
+                <EdicionHabilidadPage
+                  userData={userData}
+                  onBack={() => navigate("/vista")}
+                  onSave={() => {
+                    navigate("/vista");
+                  }}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/proyecto"
+            element={
+              <ProtectedRoute>
+                <EdicionProyectoPage
+                  initialData={
+                    editProyectoIdx !== null
+                      ? userData.proyectos?.[editProyectoIdx]
+                      : null
+                  }
+                  onBack={() => navigate("/vista")}
+                  onSave={() => {
+                    setEditProyectoIdx(null);
+                    navigate("/vista");
+                  }}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/proyecto/:idx"
+            element={
+              <ProtectedRoute>
+                <VistaProyectoPage
+                  userData={userData}
+                  onBack={() => navigate("/vista")}
+                />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </motion.div>
     </AnimatePresence>

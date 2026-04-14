@@ -4,12 +4,11 @@ import RegisterModule from "./modules/RegisterModule";
 import iconoSol from "../assets/iconoSol.png";
 import iconoLuna from "../assets/iconoLuna.png";
 
-export default function RegistroUsuarioPage({ onNext }) {
+export default function RegistroUsuarioPage() {
   const { isDark, toggleTheme } = useTheme();
 
   const bg = isDark ? "#020617" : "#D9D9D9";
   const card = isDark ? "#0F172A" : "#fff";
-  const text = isDark ? "#fff" : "#111";
   const sub = isDark ? "#94a3b8" : "#807F81";
 
   return (
@@ -34,9 +33,15 @@ export default function RegistroUsuarioPage({ onNext }) {
         />
       </button>
 
-      <div className="reg-card" style={{ background: card }}>
+      <div className="reg-card" style={{
+        background: card,
+        boxShadow: isDark
+          ? "0 8px 40px rgba(0,0,0,0.5)"
+          : "0 8px 40px rgba(0,0,0,0.1)",
+      }}>
         <div style={{
-          background: "#3B82F6", borderRadius: 10,
+          background: "linear-gradient(135deg, #3B82F6 0%, #6366F1 100%)",
+          borderRadius: 10,
           padding: "14px 20px", marginBottom: 12, textAlign: "center",
         }}>
           <h1 style={{ color: "#fff", fontSize: 24, fontWeight: 700 }}>Crear Cuenta</h1>
@@ -44,7 +49,7 @@ export default function RegistroUsuarioPage({ onNext }) {
         <p style={{ color: sub, textAlign: "center", marginBottom: 20 }}>
           Regístrate para continuar
         </p>
-        <RegisterModule onNext={onNext} isDark={isDark} />
+        <RegisterModule isDark={isDark} />
       </div>
     </div>
   );

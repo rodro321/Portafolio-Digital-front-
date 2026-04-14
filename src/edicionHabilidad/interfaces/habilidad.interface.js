@@ -1,12 +1,14 @@
 export const TECH_SUGGESTIONS = [
   "React", "Node", "Java", "Python", "Vue",
   "Angular", "TypeScript", "Docker", "SQL", "Git",
-  "Spring", "Laravel", "MongoDB", "AWS", "Otro",
+  "Spring", "Laravel", "MongoDB", "AWS", "PHP",
+  "PostgreSQL", "Go (Golang)", "REST APIs", "Otro",
 ];
 
 export const SOFT_SUGGESTIONS = [
-  "Lider", "Comunicación", "Trabajo en equipo",
+  "Liderazgo", "Comunicación", "Trabajo en equipo",
   "Resolución de problemas", "Adaptabilidad",
   "Creatividad", "Empatía", "Puntualidad",
-  "Proactividad", "Organización", "Otro",
+  "Proactividad", "Organización", "Gestión del tiempo",
+  "Aprendizaje Autónomo", "Mentoría", "Otro",
 ];
